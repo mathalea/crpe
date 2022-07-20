@@ -6,4 +6,5 @@
 *.aux
 *.dvi
 *.log
+*.ps
 *.synctex.gz
