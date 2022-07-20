@@ -6,5 +6,6 @@
 *.aux
 *.dvi
 *.log
+*.ps
 *.synctex.gz
 .DS_Store
