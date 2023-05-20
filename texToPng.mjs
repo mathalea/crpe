@@ -25,19 +25,33 @@ rl.question('Entrez le chemin du répertoire : ', (dirPath) => {
 
     for (const file of texFiles) {
       const filePath = path.join(dirPath, file);
-      console.log(`Compiling ${filePath}...`);
-
+      
       const content = readFileSync(filePath, 'utf8');
       const preamble = readFileSync('./preambule.tex', 'utf8');
-      const tmpFilePath = join(tmpdir(), basename(filePath));
-      const tmpFileContent = `${preamble}\n\\begin{document}\n${content}\n\\end{document}\n`;
+      const tmpFilePath = join('tmp', filePath);
+      const tmpFileContent = `\\documentclass[preview,border=5pt]{standalone}\n${preamble}\n\\begin{document}\n${content}\n\\end{document}\n`;
       writeFileSync(tmpFilePath, tmpFileContent);
       
-      execSync(`lualatex --output-directory=${dirPath} ${tmpFilePath}`);
-      // execSync(`convert -density 150 ${dirPath}/${basename(filePath, '.tex')}.pdf -quality 90 ${dirPath}/${basename(filePath, '.tex')}.png`);
+      console.log(`lualatex ${tmpFilePath}...`);
+      // try {
+      //   execSync(`lualatex ${tmpFilePath}`);
+      // } catch (error) {
+      //   console.log(`${tmpFilePath} n'a pas pu être compilé.`)
+      //   console.log(error);
+      // }
+      try {
+        execSync(`convert -density 150 -background white -flatten ./${basename(filePath, '.tex')}.pdf -quality 90 ./${basename(filePath, '.tex')}.png`);
+      } catch (error) {
+        console.log(`${tmpFilePath} n'a pas pu être converti en png.`)        
+      }
       
-      fs.unlinkSync(tmpFilePath);
+      //fs.unlinkSync(tmpFilePath);
     }
+  const filesCurrentDir = fs.readdirSync('./');
+  const auxFiles = filesCurrentDir.filter(file => (path.extname(file) === '.aux' || path.extname(file) === '.log'));
+  for (const file of auxFiles) {
+    fs.unlinkSync(file);
+  }
   });
 
   rl.close();
